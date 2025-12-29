@@ -8,6 +8,7 @@ npm install
 ```
 ## Folder Structure
 
+```txt
 src
  ┣ config        // config tách riêng
  ┣ controllers   // HTTP layer
@@ -18,3 +19,4 @@ src
  ┣ utils         // helper / utilites
  ┣ app.ts        // dispatcher / app core
  ┗ index.ts      // bootstrap
+```
