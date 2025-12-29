@@ -26,7 +26,5 @@ src/
 ├── services/
 │   └── user.service.ts     # Business logic
 └── utils/
-    ├── logger.ts           # Logging utility
-    ├── response.ts         # Response helpers
     └── validation.ts       # Validation helpers
 ```
