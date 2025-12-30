@@ -18,6 +18,9 @@ npm install
 |---------|---------|-------------|
 | [express](https://expressjs.com/) | ^5.2.1 | Fast, unopinionated web framework for Node.js |
 | [dotenv](https://github.com/motdotla/dotenv) | ^17.2.3 | Loads environment variables from .env file |
+| [@prisma/client](https://www.prisma.io/) | ^7.2.0 | Auto-generated and type-safe database client |
+| [pg](https://node-postgres.com/) | ^8.16.3 | PostgreSQL client for Node.js |
+| [@types/pg](https://www.npmjs.com/package/@types/pg) | ^8.16.0 | Type definitions for pg |
 
 ### Development Dependencies
 
@@ -54,6 +57,7 @@ npm install
 |---------|---------|-------------|
 | [nodemon](https://nodemon.io/) | ^3.1.11 | Automatically restarts node application on file changes |
 | [rimraf](https://github.com/isaacs/rimraf) | ^6.1.2 | Deep deletion module for node (cross-platform rm -rf) |
+| [prisma](https://www.prisma.io/) | ^7.2.0 | Next-generation ORM for Node.js and TypeScript |
 
 ## Quick Start
 
@@ -89,23 +93,30 @@ npm start
 ## Folder Structure
 
 ```
-src/
-├── app.ts                 # Express app configuration
-├── index.ts              # Application entry point
-├── config/
-│   └── env.ts           # Environment configuration
-├── controllers/
-│   └── user.controller.ts  # HTTP request handlers
-├── middlewares/
-│   └── error.middleware.ts # Error handling
-├── models/
-│   └── user.model.ts       # Data models & types
-├── routes/
-│   └── user.route.ts       # API route definitions
-├── services/
-│   └── user.service.ts     # Business logic
-└── utils/
-    ├── logger.ts           # Logging utility
-    ├── response.ts         # Response helpers
-    └── validation.ts       # Validation helpers
+├── prisma/
+│   └── schema.prisma      # Prisma schema for database models
+├── src/
+│   ├── app.ts             # Express app configuration
+│   ├── index.ts           # Application entry point
+│   ├── config/
+│   │   └── env.ts         # Environment configuration
+│   ├── controllers/
+│   │   └── user.controller.ts  # HTTP request handlers
+│   ├── database/
+│   │   └── connection.ts  # Database connection setup
+│   ├── middlewares/
+│   │   └── error.middleware.ts # Error handling
+│   ├── models/
+│   │   └── user.model.ts  # Data models & types
+│   ├── routes/
+│   │   └── user.route.ts  # API route definitions
+│   ├── schemas/
+│   │   └── user.schemas.ts # Validation schemas
+│   ├── services/
+│   │   └── user.service.ts # Business logic
+│   └── utils/
+│       └── validation.ts  # Validation helpers
+├── eslint.config.ts       # ESLint configuration
+├── prisma.config.ts       # Prisma configuration
+└── tsconfig.json          # TypeScript configuration
 ```
