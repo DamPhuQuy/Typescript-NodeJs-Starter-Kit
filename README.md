@@ -93,30 +93,37 @@ npm start
 ## Folder Structure
 
 ```
-├── prisma/
-│   └── schema.prisma      # Prisma schema for database models
-├── src/
-│   ├── app.ts             # Express app configuration
-│   ├── index.ts           # Application entry point
-│   ├── config/
-│   │   └── env.ts         # Environment configuration
-│   ├── controllers/
-│   │   └── user.controller.ts  # HTTP request handlers
-│   ├── database/
-│   │   └── connection.ts  # Database connection setup
-│   ├── middlewares/
-│   │   └── error.middleware.ts # Error handling
-│   ├── models/
-│   │   └── user.model.ts  # Data models & types
-│   ├── routes/
-│   │   └── user.route.ts  # API route definitions
-│   ├── schemas/
-│   │   └── user.schemas.ts # Validation schemas
-│   ├── services/
-│   │   └── user.service.ts # Business logic
-│   └── utils/
-│       └── validation.ts  # Validation helpers
-├── eslint.config.ts       # ESLint configuration
-├── prisma.config.ts       # Prisma configuration
-└── tsconfig.json          # TypeScript configuration
+Project_Root/
+ ┣ 📂prisma/
+ ┃ ┗ 📜schema.prisma      # Single source of truth for DB models
+ ┣ 📂src/
+ ┃ ┣ 📂config/            # Environment variables & 3rd party configs (env.ts)
+ ┃ ┣ 📂controllers/       # Request handling, response formatting (user.controller.ts)
+ ┃ ┣ 📂database/          # Prisma Client initialization (connection.ts)
+ ┃ ┣ 📂middlewares/       # Auth, Error handling, Logger (error.middleware.ts)
+ ┃ ┣ 📂repositories/      # Direct DB operations only (user.repository.ts)
+ ┃ ┣ 📂routes/            # Route definitions & entry points (user.route.ts)
+ ┃ ┣ 📂services/          # Business logic & orchestration (user.service.ts)
+ ┃ ┣ 📂types/             # Shared TS interfaces/types (request.type.ts)
+ ┃ ┣ 📂utils/             # Shared helper functions (password.util.ts)
+ ┃ ┣ 📂validations/       # Schema validation - Zod/Joi (user.validation.ts)
+ ┃ ┣ 📜app.ts             # Express setup (Middlewares, Routes)
+ ┃ ┗ 📜server.ts          # Entry point (DB connect -> App listen)
+ ┣ 📜.env                 # Private secrets
+ ┣ 📜package.json
+ ┗ 📜tsconfig.json
 ```
+
+|Order|Component    |Role (Responsibility)|Simple Explanation                                                                                           |
+|-----|-------------|---------------------|-------------------------------------------------------------------------------------------------------------|
+|1    |server.ts    |The Starter          |The ignition key. It connects to the Database first. If DB fails, it stops the server from starting.         |
+|2    |app.ts       |The Skeleton         |Configures Express. It sets up CORS, JSON parsing, and attaches the main Router.                             |
+|3    |routes/      |The Map              |Directs the URL (e.g., /users) to the specific "room" (Controller) that handles it.                          |
+|4    |middlewares/ |The Gatekeeper       |Security check. Verifies if the user is logged in (Auth) or has permission (Role) before proceeding.         |
+|5    |validations/ |The Scanner          |Ensures incoming data is correct (e.g., Is the email valid?). Blocks "dirty" data from reaching the core.    |
+|6    |controllers/ |The Receptionist     |Extracts data from the Request, calls the Service, and decides what Status Code (200, 400, 500) to send back.|
+|7    |services/    |The Brain (Logic)    |Where the magic happens. Handles calculations, hashing, and business rules. It says: "What needs to be done?"|
+|8    |repositories/|The Librarian        |The only layer allowed to touch Prisma. It handles the "How": "How do I fetch/save this in the DB?"          |
+|9    |database/    |The Physical Link    |Houses the Prisma Client instance that maintains the actual pipe to your SQL/NoSQL server.                   |
+|--   |types/       |The Blueprints       |Defines the "shape" of data so TypeScript can catch errors while you are typing code.                        |
+|--   |utils/       |The Toolbox          |Reusable tools like JWT generators, password hashers, or date formatters used across layers.                 |
