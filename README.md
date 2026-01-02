@@ -2,6 +2,36 @@
 
 A production-ready Node.js + TypeScript starter kit with Express, following MVC architecture pattern with service layer.
 
+<img src="./img/Screenshot 2026-01-01 090138.png">
+<img src="./img/Screenshot 2026-01-01 090204.png">
+
+- [Typescript NodeJs Starter Kit](#typescript-nodejs-starter-kit)
+  - [Installation](#installation)
+  - [Libraries Used](#libraries-used)
+    - [Production Dependencies](#production-dependencies)
+    - [Development Dependencies](#development-dependencies)
+      - [TypeScript \& Type Definitions](#typescript--type-definitions)
+      - [Code Quality \& Linting](#code-quality--linting)
+      - [Code Formatting](#code-formatting)
+      - [Development Tools](#development-tools)
+  - [Quick Start](#quick-start)
+  - [Available Scripts](#available-scripts)
+  - [Folder Structure](#folder-structure)
+  - [Summary](#summary)
+    - [database/](#database)
+    - [routes/](#routes)
+    - [controllers/](#controllers)
+    - [services/](#services)
+    - [repositories/](#repositories)
+    - [middlewares/](#middlewares)
+    - [config/](#config)
+    - [Workflow](#workflow)
+  - [Misunderstood concepts](#misunderstood-concepts)
+    - [`controllers/` and `services/`](#controllers-and-services)
+    - [`services/` and `repositories/`](#services-and-repositories)
+    - [`database/` and `repositories/`](#database-and-repositories)
+
+
 ## Installation
 
 ```bash
@@ -114,16 +144,113 @@ Project_Root/
  ┗ 📜tsconfig.json
 ```
 
-|Order|Component    |Role (Responsibility)|Simple Explanation                                                                                           |
-|-----|-------------|---------------------|-------------------------------------------------------------------------------------------------------------|
-|1    |server.ts    |The Starter          |The ignition key. It connects to the Database first. If DB fails, it stops the server from starting.         |
-|2    |app.ts       |The Skeleton         |Configures Express. It sets up CORS, JSON parsing, and attaches the main Router.                             |
-|3    |routes/      |The Map              |Directs the URL (e.g., /users) to the specific "room" (Controller) that handles it.                          |
-|4    |middlewares/ |The Gatekeeper       |Security check. Verifies if the user is logged in (Auth) or has permission (Role) before proceeding.         |
-|5    |validations/ |The Scanner          |Ensures incoming data is correct (e.g., Is the email valid?). Blocks "dirty" data from reaching the core.    |
-|6    |controllers/ |The Receptionist     |Extracts data from the Request, calls the Service, and decides what Status Code (200, 400, 500) to send back.|
-|7    |services/    |The Brain (Logic)    |Where the magic happens. Handles calculations, hashing, and business rules. It says: "What needs to be done?"|
-|8    |repositories/|The Librarian        |The only layer allowed to touch Prisma. It handles the "How": "How do I fetch/save this in the DB?"          |
-|9    |database/    |The Physical Link    |Houses the Prisma Client instance that maintains the actual pipe to your SQL/NoSQL server.                   |
-|--   |types/       |The Blueprints       |Defines the "shape" of data so TypeScript can catch errors while you are typing code.                        |
-|--   |utils/       |The Toolbox          |Reusable tools like JWT generators, password hashers, or date formatters used across layers.                 |
+## Summary
+
+### database/
+- Role: Manage connection to database, define how database looks like, no sql query
+-
+
+### routes/
+- Role: Declare route URL and HTTP method
+- Notice: No logic, No database
+
+```ts
+router.post("/users", userController.create); // .create for post method
+```
+
+### controllers/
+- Role: Receive `request`, call `services/`, send back `response` (HTTP adapter)
+
+```ts
+export const create = async (request, response) => {
+  const user = await userService.createUser(request.body);
+  response.status(201).json(user); // response.json(): response method for sending json response
+}
+```
+
+### services/
+- Role: Business logic, coordinate repositories
+```ts
+export const createUser = async (data) => {
+  if (await userRepo.existByEmail(data.email)) {
+    throw new Error("Emai exists");
+  }
+  return userRepo.create(data);
+}
+```
+
+### repositories/
+- Role: query DB, only CRUD, no business logic, manipulate with database, no True/False logic
+```ts
+export const create = (data) => {
+  prisma.user.create({ data });
+}
+```
+
+### middlewares/
+- Role: handle cross-cutting concerns, auth, error handler, logging
+- In middle between request and response, not depend on business
+```ts
+// middlewares/error.middleware.ts
+export const errorHandler = (err, req, res, next) => {
+  res.status(500).json({ message: err.message });
+};
+```
+### config/
+- Role: read env, external configuration
+```ts
+export const env = {
+  PORT: process.env.PORT!,
+};
+```
+
+### Workflow
+```markdown
+Client
+ ↓
+Express App
+ ↓
+Global Middleware
+ ↓
+Route
+ ↓
+Validation
+ ↓
+Controller
+ ↓
+Service  ← BUSINESS LOGIC
+ ↓
+Repository
+ ↓
+Database
+ ↑
+Response
+```
+## Misunderstood concepts
+### `controllers/` and `services/`
+
+| Controller   | Service            |
+| ------------ | ------------------ |
+| HTTP layer   | Business layer     |
+| Know req/res | Don't know HTTP    |
+| Parse input  | Check business logic |
+| Send response | Send data           |
+
+Rule: if we take away Express but code still works -> service
+
+### `services/` and `repositories/`
+| Service        | Repository      |
+| -------------- | --------------- |
+| Logic          | Query (only CRUD)       |
+| Decision     | Execute        |
+| Call repos | 1 repo / 1 table |
+
+### `database/` and `repositories/`
+
+
+| Feature | `database/` | `repositories/` |
+| --- | --- | --- |
+| **Layer** | **Infrastructure** (Physical) | **Data Access** (Abstraction) |
+| **Main Focus** | How data is **stored** and structured. | How data is **accessed** and managed. |
+| **Typical Content** | Migrations, Seeds, Schemas, SQL files. | Classes/Interfaces with methods like `find()`, `save()`. |
+| **Responsibility** | Creating tables, indexes, and constraints. | Fetching and mapping DB rows into Code Objects. |

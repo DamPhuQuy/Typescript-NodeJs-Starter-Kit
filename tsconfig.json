@@ -12,6 +12,6 @@
       "~/*": ["src/*"] // Đường dẫn tương đối cho các import (alias)
     }
   },
-  "include": ["src"],
+  "include": ["src", "prisma", "*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }
